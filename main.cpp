@@ -41,13 +41,14 @@ indicate the user should collect 10 cents from a store manager. 
 #include <bits/stdc++.h>
 #include <math.h>
 #include <stdio.h>
+#include <ctype.h>
 using namespace std;
 
-#define NICKEL 0.05
-#define DIME 0.1
-#define QUARTER 0.25
-#define ONE 1.0
-#define FIVE 5.0
+#define NICKEL 5
+#define DIME 10
+#define QUARTER 25
+#define ONE 100
+#define FIVE 500
 
 class Menu_display
 {
@@ -68,7 +69,7 @@ class Menu_display
        fives_balance = fives_balance + fives_update;
     }
 
-    float total_balance()
+    double total_balance()
     {
       return (nickels_balance * NICKEL + dimes_balance * DIME + quarters_balance * QUARTER + ones_balance * ONE + fives_balance * FIVE);
     }
@@ -83,15 +84,17 @@ class Menu_display
       cout << setw(10) << fives_balance << " fives" << endl;
 
     }
-    bool verify_multiple_of_fives(float price)
+    bool verify_multiple_of_fives(double price)
     {
+      
       if (price > 0)
       {
-        int price_in_cents = ceil(price * 100);
-        cout << "Price is : " << price << endl;
-        cout << "price in cent is : " << price_in_cents << endl;
+        int price_in_cents = (price * 100);
+        //cout << "Price is : " << price << endl;
+        //cout << "price in cent is : " << price_in_cents << endl;
         if (fmod(price,1.0) < 1)
         {
+          //cout << price_in_cents << endl;
           if( price_in_cents % 5  == 0)
             return true;
           else
@@ -105,20 +108,21 @@ class Menu_display
       }
       else
         {
-          cout << "Illegal price: Must be a non-negative multiple of 5 cents." << endl << endl;
+          cout << "**Illegal price: Must be a non-negative multiple of 5 cents." << endl << endl;
+          return false;
         }
-        return false;
+        
     }
-    int get_before_decimals(float price)
+    int get_before_decimals(double price)
     {
-      int price_in_cents = ceil(price * 100);
+      int price_in_cents = (price * 100);
       return (price_in_cents / 100);
      
     }
-    int get_cents(float price)
+    int get_cents(double price)
     {
 
-      int price_in_cents = ceil(price * 100);
+      int price_in_cents = (price * 100);
       if (fmod(price,1.0) < 1)
       {
         return (price_in_cents % 100);
@@ -127,12 +131,17 @@ class Menu_display
     }
 
 
-    float deposit(float price)
+    int deposit(double price)
     {
       char deposit_coin;
-      float deposit = 0;
-      float balance = 0;
-      float change = 0;
+      int deposit_in_cents = 0;
+      int balance_in_cents = 0;
+      int change_in_cents = 0;
+      int price_in_cents;
+      if (price > 0)
+        price_in_cents = (price * 100);
+
+      //cout << price_in_cents << endl;
 
       cout << "Menu for deposits: " << endl;
       
@@ -142,9 +151,9 @@ class Menu_display
       cout << "   'o' - deposit a one dollar bill" << endl;
       cout << "   'f' - deposit a five dollar bill" << endl;
       cout << "   'c' - cancel the purchase" << endl;
-      cout << "Payment due: " << get_before_decimals(price) << " dollars " << get_cents(price) << " cents" << endl;
+      cout << " Payment due: " << int(price_in_cents / 100) << " dollars " << int(price_in_cents % 100) << " cents" << endl;
 
-      while (deposit < price)
+      while (deposit_in_cents < price_in_cents)
       {
 
         cout << " Indicate your deposit : " ;
@@ -154,138 +163,208 @@ class Menu_display
         {
           case 'n':
             //cout << "A nickel is diposited" << endl;
-            deposit = deposit + 0.05;
+            deposit_in_cents = deposit_in_cents + NICKEL;
+            nickels_balance++;
             break;
           case 'd':
             //cout << "A dime is diposited" << endl;
-            deposit = deposit + 0.1;
+            deposit_in_cents = deposit_in_cents + DIME ;
+            dimes_balance++;
             break;
           case 'q':
             //cout << "A quarter coin is diposited" << endl;
-            deposit = deposit + 0.25;
+            deposit_in_cents = deposit_in_cents + QUARTER;
+            quarters_balance++;
             break;
           case 'o':
             //cout << "A one dollar note is diposited" << endl;
-            deposit = deposit + 1.0;
+           deposit_in_cents = deposit_in_cents + ONE;
+            ones_balance++;
             break;
           case 'f':
             //cout << "A five dollar note is diposited" << endl;
-            deposit = deposit + 5.0;
+            deposit_in_cents = deposit_in_cents + FIVE;
+            fives_balance++;
             break;
           case 'c':
             //cout << "Transaction is cancelled" << endl;
-            change = deposit;
-            return change;
+            change_in_cents = deposit_in_cents;
+            return change_in_cents;
             break;
           default:
-            cout << "Invalid" << endl;
+            cout << "Illegal selection : " << deposit_coin << endl;
 
         }
-        balance = price - deposit;
-
-        if(balance > 0)
+     
+        balance_in_cents = price_in_cents - deposit_in_cents;
+        if(balance_in_cents > 0)
         {
-          cout << "Payment due: " << get_before_decimals(balance) << " dollars " << get_cents(balance) << " cents" << endl;
+          cout << "Payment due: " << int(balance_in_cents/100) << " dollars " << int(balance_in_cents % 100) << " cents" << endl;
         }
+        //cout << "Total Deposit is : " << int(deposit_in_cents/100) << " dollars and "  << int(deposit_in_cents % 100) << " cents." << endl;
       }
 
-      change = deposit - price;
+      cout << endl << "Total Deposit is : " << int(deposit_in_cents/100) << " dollars and "  << int(deposit_in_cents % 100) << " cents." << endl;
+
+      change_in_cents = deposit_in_cents - price_in_cents;
 
 
-      return change;
+      return change_in_cents;
     }
 
     
 
-    bool check(float change)
+    void check(int change_in_cents)
     {
-      if (change < total_balance())
+      int deposit_amount_in_cents=0;
+
+      if(change_in_cents == 0)
       {
-        while (change >= FIVE && fives_balance >= 1)
-        {
-          change = change - FIVE;
-          fives_balance = fives_balance - 1;
-        }
-        while (change >= ONE && ones_balance >= 1)
-        {
-          change = change - ONE;
-          ones_balance = ones_balance - 1;
-        }
-        while (change >= QUARTER && quarters_balance >= 1)
-        {
-          change = change - QUARTER;
-          quarters_balance = quarters_balance - 1;
-        }
-        while (change >= DIME && dimes_balance >= 1)
-        {
-          change = change - DIME;
-          dimes_balance = dimes_balance - 1;
-        }
-        while (change >= NICKEL && nickels_balance >= 1)
-        {
-          change = change - NICKEL;
-          nickels_balance = nickels_balance - 1;
-        }
-
-
-
-        if(change > total_balance())
-        {
-            cout << "Machine is out of change. See store manager for remaining refund." << endl;
-            cout << "Amount due is : " << get_before_decimals(change) << " dollars " << get_cents(change) << " cents" << endl;
-
-        }
-
-        return true;
+          cout << "   No change." << endl;
       }
-        
       else
       {
+        cout << "Change due is : " << int(change_in_cents / 100) << " dollars and " << int(change_in_cents % 100) << " cents." << endl << endl;
 
-        cout << "Machine is out of change." << endl;
+        nickels_change = 0, dimes_change = 0, quarters_change = 0, ones_change = 0, fives_change = 0;
+          
+        while (change_in_cents >= FIVE && fives_balance >= 1)
+        {
+          change_in_cents = change_in_cents - FIVE;
+          fives_balance = fives_balance - 1;
+          fives_change++;
+          deposit_amount_in_cents = deposit_amount_in_cents + FIVE;
+        }
+        //cout << "After Fives : " << change_in_cents << endl;
+        while (change_in_cents >= ONE && ones_balance >= 1)
+        {
+          change_in_cents = change_in_cents - ONE;
+          ones_balance = ones_balance - 1;
+          ones_change++;
+          deposit_amount_in_cents = deposit_amount_in_cents + ONE;
+        }
+        //cout << "After Ones : " << change_in_cents << endl;
+        while (change_in_cents >= QUARTER && quarters_balance >= 1)
+        {
+          change_in_cents = change_in_cents - QUARTER;
+          quarters_balance = quarters_balance - 1;
+          quarters_change++;
+          deposit_amount_in_cents = deposit_amount_in_cents + QUARTER;
+        }
+        //cout << "After Quarters : " << change_in_cents << endl;
+        while (change_in_cents >= DIME && dimes_balance >= 1)
+        {
+          change_in_cents = change_in_cents - DIME;
+          dimes_balance = dimes_balance - 1;
+          dimes_change++;
+          deposit_amount_in_cents = deposit_amount_in_cents + DIME;
+        }
+        //cout << "After Dimes : " << change_in_cents << endl;
+        while (change_in_cents >= NICKEL && nickels_balance > 0)
+        {
+          
+          change_in_cents = change_in_cents - NICKEL;
+          nickels_balance = nickels_balance - 1;
+          nickels_change++;
+          deposit_amount_in_cents = deposit_amount_in_cents + NICKEL;
+          //cout << " " << change_in_cents << endl;
+          //cout << " " << NICKEL << endl;
+        }
+        //cout << "After Nickels : " << change_in_cents << endl;
 
-        return false;
+        // Displaying Change below
+
+        cout << "Please take the change below." <<endl;
+        //cout  << " Change amount : " << int(change_in_cents / 100) << " dollars and " << int(change_in_cents % 100) << " cents." << endl;
+        if (fives_change > 0)
+          cout << "  " << fives_change << " fives" << endl;
+        if (ones_change > 0)
+          cout << "  " << ones_change << " ones" << endl;
+        if (quarters_change > 0)
+          cout << "  " << quarters_change << " quarters" << endl;
+        if (dimes_change > 0)
+          cout << "  " << dimes_change << " dimes" << endl;
+        if (nickels_change > 0)
+          cout << "  " << nickels_change << " nickels" << endl;
+        
+
+        if(change_in_cents > 0)
+        {
+            cout << "Machine is out of change. See store manager for remaining refund." << endl;
+            cout << "Amount due is : " << int(change_in_cents / 100) << " dollars and " << int(change_in_cents % 100) << " cents." << endl;
+
+        }
 
 
       }
+
+      
+
+
         
     }
 };
  
 int main() {
 
-  cout << "Welcome to the vending machine change maker program " << endl;
+  string ask_continue;
+
+  cout << endl << "Welcome to the vending machine change maker program " << endl;
   cout << "Change maker initialized. " << endl;
  
-    // Declare register1
-    Menu_display register1;
-    register1.update(25,25,25,0,0);
-    //cout << register1.total_balance() << endl;
-    //cout << "Total value : " << register1.total_balance() << endl;
-    register1.display_balance();
-    
-    float price = 0;
+    Menu_display register1;   //Declare Register 1
+    register1.update(25,25,25,0,0); //Update Register 1 with initial stock
+ 
+    register1.display_balance(); // Display Register 1 stock
+    string user_input1 = "";
+    bool number_true = 0;
+    double price = 0;
+    int j;
 
     do{
-      cout << "Enter the purchase price (xx.xx) : " ;
-      cin >> price;
-    } while (register1.verify_multiple_of_fives(price) != 1);
 
-    cout << register1.deposit(price) << endl;
+      ask_continue = "";
+
+      do{
+
+        do{
+          cout << endl << "Enter the purchase price (xx.xx) : " ;
+        cin >> user_input1;
+
+        for(j= 0; j< (user_input1.length()) ; j++)
+        {
+          if(isdigit(user_input1[j]))
+          {
+            //cout << user_input1[j] << endl;
+            number_true = 0;
+          }
+          else
+            number_true = 1;
+//cout << number_true << endl;
+        }
+        if(number_true == 1)
+          cout << "Type number in xx.xx." << endl;
 
 
-     
-    //&& register1.verify_multiple_of_fives(price)
+        }while(number_true);
+
+        price = stod (user_input1);
+        
+
+      } while (register1.verify_multiple_of_fives(price) != 1);
+
+      register1.check((register1.deposit(price)));
+      cout << "================================" << endl;
+      register1.display_balance();
+      cout << "================================" << endl;
+
+      cout << "Do you want to continue: " ;
+      cin >> ask_continue;
 
 
-    //cout << register1.verify_multiple_of_fives(1.04) << endl;
-    
-    //cout << register1.check(9.5) << endl;
+    }while(ask_continue =="yes" || ask_continue == "YES" || ask_continue == "Yes" || ask_continue == "Y" || ask_continue == "y");
 
-    //register1.display_balance();
-    //cout << "Total value : " << register1.total_balance() << endl;
+    cout << "Register 1 closed" << endl;
 
-
- 
     return 0;
 }
