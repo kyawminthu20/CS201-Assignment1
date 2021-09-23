@@ -69,11 +69,12 @@ class Menu_display
        fives_balance = fives_balance + fives_update;
     }
 
+    // getting total balance of the register
     double total_balance()
     {
       return (nickels_balance * NICKEL + dimes_balance * DIME + quarters_balance * QUARTER + ones_balance * ONE + fives_balance * FIVE);
     }
-
+    // getting coin balance
     void display_balance()
     {
       cout << "Stock contains: " << endl;
@@ -84,6 +85,8 @@ class Menu_display
       cout << setw(10) << fives_balance << " fives" << endl;
 
     }
+
+    // Verification of fives
     bool verify_multiple_of_fives(double price)
     {
       
@@ -130,7 +133,7 @@ class Menu_display
       return (0);
     }
 
-
+    // Deposit menu for the register
     int deposit(double price)
     {
       char deposit_coin;
@@ -153,6 +156,8 @@ class Menu_display
       cout << "   'c' - cancel the purchase" << endl;
       cout << " Payment due: " << int(price_in_cents / 100) << " dollars " << int(price_in_cents % 100) << " cents" << endl;
 
+
+      // Case structure to update coin balance
       while (deposit_in_cents < price_in_cents)
       {
 
@@ -212,7 +217,7 @@ class Menu_display
       return change_in_cents;
     }
 
-    
+    // Change calculation and execution
 
     void check(int change_in_cents)
     {
@@ -295,12 +300,7 @@ class Menu_display
 
         }
 
-
       }
-
-      
-
-
         
     }
 };
